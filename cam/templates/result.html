@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container jumbotron col-md-5" style="margin-top: 6%; padding-bottom: 1%; padding-top: 1%    ">
+        <center style="margin-bottom: 15px;">
+            <h3>Kết quả</h3></center>
+        <center>
+            {% if url%}
+            <img id="photo1" src="{{ url }}"  style="max-height: 280px; max-width: 500px;"/>
+            {% endif %}
+        </center>   
+        <center style="margin-top: 20px;">
+            <a href="{% url 'cam:index' %}"><button type="button" class="btn btn-light" style="border-color: dodgerblue">Thoát</button></a>
+        </center>
+</div>
+{%endblock%}

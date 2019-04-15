@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container jumbotron col-md-5" style="margin-top: 6%; padding-bottom: 1%; padding-top: 1%    ">
+        <center style="margin-bottom: 15px;">
+            <h3>DỰ ĐOÁN TUỔI - GIỚI TÍNH</h3></center>
+        <center>
+            <img id="photo1" src="../static/image/as1.png" width="500" height="280"/>
+        </center>
+        <center style="margin-top: 20px;">
+          <button type="button" class="btn btn-light" style="border-color: dodgerblue" 
+            data-toggle="modal" data-target="#exampleModal">Upload ảnh</button>
+          <a href="{% url 'cam:camera' %}"><button id="snap" type="button" class="btn btn-primary" style="border-color: dodgerblue">Chụp ảnh</button> </a>
+        </center>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 10%;">
+        <div class="modal-dialog" role="document">
+        <form action="{% url 'cam:upload' %}" method="POST" enctype = "multipart/form-data" onsubmit="return(kiemtra());">
+        {% csrf_token %} 
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Chọn ảnh</h5>
+            </div>
+            <div class="modal-body">
+            <input type="file" name = "image" id="upload_file"/>
+            <div id="thongbao" ></div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            <input type="submit" class="btn btn-primary" value="Dự đoán">
+            </div>
+        </div>
+        </form>
+        <script>
+            function kiemtra(){
+               var test = document.getElementById('upload_file').value;
+               if (test==""){
+                 document.getElementById('thongbao').innerHTML = 'Hãy chọn file ảnh!';
+                 document.getElementById('thongbao').style.color = 'red';
+
+                 return false;
+               }
+               else return true;
+            }
+          
+          </script>
+        </div>
+    </div>
+{%endblock%}

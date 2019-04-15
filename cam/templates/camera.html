@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container jumbotron col-md-7" style="margin-top: 6%; padding-bottom: 2%;">
+    <div class="camera">
+      <video id="video" width="350" height="196" style="background: khaki;"></video>
+      <img id="photo1" src="../static/image/dd.jpg" width="350" height="196" style="float:right;"/>
+      
+      <canvas id="photo" width="350" height="196" style="float:right; border-color: khaki; display: none;"></canvas>
+    </div>
+    <center style="margin-top: 5%;">
+      <a href="{% url 'cam:index' %}"><button type="button" class="btn btn-light" style="border-color: dodgerblue">Thoát</button></a>
+      <button id="snap" onclick="snap()" type="button" class="btn btn-light" style="border-color: dodgerblue">Chụp ảnh</button> 
+      <a href="#" id="pre"></a>
+    </center>
+    <input type='file' id="fileUpload" value="" style="display:none;"/>
+</div>
+  <img src="" alt="" id="aaa">
+  <script>
+    // Camera setup
+    var constraints = { audio: false, video: { width: 1280, height: 720 } }; 
+    var temp = 0;
+
+    navigator.mediaDevices.getUserMedia(constraints)
+    .then(function(mediaStream) {
+      var video = document.querySelector('video');
+      video.srcObject = mediaStream;
+      video.onloadedmetadata = function(e) {
+        video.play();
+        temp = 1;
+      };
+    })
+    .catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
+
+    // Trigger photo take
+    function snap(){
+      // Elements for taking the snapshot
+      var canvas = document.getElementById('photo');
+      var context = canvas.getContext('2d');
+      var video = document.getElementById('video');
+
+      if (temp == 1){
+        document.getElementById('photo1').style.display = 'none';
+        document.getElementById('photo').style.display = 'inline-block';
+          context.drawImage(video, 0, 0, 350, 196);
+        document.getElementById('pre').innerHTML = '<button type="button" onclick="upl()" class="btn btn-primary">Dự đoán</button>';
+        document.getElementById("fileUpload").value = "C/aa";
+      }
+    };
+
+    // Converts canvas to an image
+    function convertCanvasToImage(canvas) {
+
+      var image = new Image();
+      image.src = canvas.toDataURL("image/png");
+      return image;
+    };
+
+    function upl(){
+      console.log(convertCanvasToImage(canvas));
+    };
+  </script>
+  {%endblock%}
