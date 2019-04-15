@@ -5,11 +5,47 @@
             <h3>Kết quả</h3></center>
         <center>
             {% if url%}
-            <img id="photo1" src="{{ url }}"  style="max-height: 280px; max-width: 500px;"/>
+            <img id="photo1" src="{{ url }}"  style="max-height: 500px; max-width: 500px;"/>
             {% endif %}
         </center>   
         <center style="margin-top: 20px;">
             <a href="{% url 'cam:index' %}"><button type="button" class="btn btn-light" style="border-color: dodgerblue">Thoát</button></a>
+            <button type="button" class="btn btn-primary" style="border-color: dodgerblue" 
+            data-toggle="modal" data-target="#exampleModal">Upload ảnh</button>
         </center>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 10%;">
+    <div class="modal-dialog" role="document">
+    <form action="{% url 'cam:upload' %}" method="POST" enctype = "multipart/form-data" onsubmit="return(kiemtra());">
+    {% csrf_token %} 
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Chọn ảnh</h5>
+        </div>
+        <div class="modal-body">
+        <input type="file" name = "image" id="upload_file"/>
+        <div id="thongbao" ></div>
+        </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+        <input type="submit" class="btn btn-primary" value="Dự đoán">
+        </div>
+    </div>
+    </form>
+    <script>
+        function kiemtra(){
+           var test = document.getElementById('upload_file').value;
+           if (test==""){
+             document.getElementById('thongbao').innerHTML = 'Hãy chọn file ảnh!';
+             document.getElementById('thongbao').style.color = 'red';
+
+             return false;
+           }
+           else return true;
+        }
+      
+      </script>
+    </div>
 </div>
 {%endblock%}
