@@ -164,8 +164,8 @@ def upload_cam(request):
         filename ="image.png"
 
         image.save(filename, quality=60)
-        shutil.move(path + filename, path+"/media")
-        context['url'] = path+"/media"+ filename
+        shutil.move(os.getcwd()+ filename, os.getcwd()+"/media")
+        context['url'] = os.getcwd()+"/media/"+ filename
 
         #Du doan
         pre(fs.url(context['url']))
