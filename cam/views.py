@@ -14,6 +14,11 @@ from keras.models import model_from_json
 from tkinter import filedialog
 from tkinter import *
 import os
+import base64
+from PIL import Image
+from io import BytesIO
+import shutil
+
 
 import tensorflow as tf
 global graph,model
@@ -26,7 +31,7 @@ json_file = open(path +"train/age4/age_model.json", "r")
 json_string = json_file.read()
 json_file.close()
 model = model_from_json(json_string)
-model.load_weights(path +"train/age4/weights.26.h5")
+model.load_weights(path +"train/age4/weights.30.h5")
 names = ["0-2", "15-20", "25-32", "38-43", "4-6", "48-53", "60-100", "8-12"]
 
 # Load model gender
@@ -146,4 +151,23 @@ def pre(img_url):
         
     cv2.imwrite(path_img, out_opencv_dnn)
 
-            
+
+def upload_cam(request):
+    contest = {}
+    if request.method =='POST':
+        #Nhan file tu request
+        upload_file = request.POST["image"]
+
+        # Chuyển về ảnh
+        image = Image.open(BytesIO(base64.b64decode(upload_file.split(",")[1])))
+
+        filename ="image.png"
+
+        image.save(filename, quality=60)
+        shutil.move(path + filename, path+"/media")
+        context['url'] = path+"/media"+ filename
+
+        #Du doan
+        pre(fs.url(context['url']))
+
+    return render(request, 'result.html', context)
