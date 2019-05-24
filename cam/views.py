@@ -69,7 +69,7 @@ def upload(request):
         context['url'] = fs.url(name)
 
         #Du doan
-        pre(fs.url(name))
+        pre(os.getcwd()+fs.url(name))
 
     return render(request, 'result.html', context)
 
@@ -104,8 +104,21 @@ def detect_face_open_cv_dnn(net, frame, conf_threshold=0.5):
 
 # Xử lý ảnh đầu vào
 def pre(img_url):
-    path_img = os.getcwd()+img_url
+    path_img =img_url
     img_load = cv2.imread(path_img)  # load ảnh
+    print("Ảnh gốc: "+str(np.shape(img_load)))
+
+    w = int(np.shape(img_load)[0] * (1280 / np.shape(img_load)[0]))
+    h = int(np.shape(img_load)[1] * (1280 / np.shape(img_load)[0]))
+    img_load = cv2.resize(img_load, (h, w))
+    print("Ảnh đã resize w: " + str(np.shape(img_load)))
+
+    if np.shape(img_load)[1] > 720:
+        w = int(np.shape(img_load)[0] * (720 / np.shape(img_load)[1]))
+        h = int(np.shape(img_load)[1] * (720 / np.shape(img_load)[1]))
+        img_load = cv2.resize(img_load, (h, w))
+        print("Ảnh đã resize h: " + str(np.shape(img_load)))
+
 
     out_opencv_dnn, bboxes = detect_face_open_cv_dnn(net, img_load)
 
@@ -153,21 +166,22 @@ def pre(img_url):
 
 
 def upload_cam(request):
-    contest = {}
+    context = {}
     if request.method =='POST':
         #Nhan file tu request
         upload_file = request.POST["image"]
 
         # Chuyển về ảnh
         image = Image.open(BytesIO(base64.b64decode(upload_file.split(",")[1])))
-
-        filename ="image.png"
+        import uuid
+        filename = str(uuid.uuid4())+".png"
+        print(filename)
 
         image.save(filename, quality=60)
-        shutil.move(os.getcwd()+ filename, os.getcwd()+"/media")
-        context['url'] = os.getcwd()+"/media/"+ filename
+        shutil.move(os.getcwd()+"/" + filename, os.getcwd()+"/media")
+        context['url'] ="/media/"+ filename
 
         #Du doan
-        pre(fs.url(context['url']))
+        pre(os.getcwd()+context['url'])
 
     return render(request, 'result.html', context)
