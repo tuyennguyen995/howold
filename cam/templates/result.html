@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container jumbotron col-md-5" style="margin-top: 6%; padding-bottom: 1%; padding-top: 1%    ">
+
+<!-- <div class="container jumbotron col-md-5" style="margin-top: 6%; padding-bottom: 1%; padding-top: 1%    ">
         <center style="margin-bottom: 15px;">
             <h3>Kết quả</h3></center>
         <center>
@@ -15,8 +16,8 @@
             <a href="{% url 'cam:camera' %}"><button id="snap" type="button" class="btn btn-primary" style="border-color: dodgerblue">Chụp ảnh</button> </a>
         </center>
 </div>
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 10%;">
+ Modal -->
+<!-- <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 10%;">
     <div class="modal-dialog" role="document">
     <form action="{% url 'cam:upload' %}" method="POST" enctype = "multipart/form-data" onsubmit="return(kiemtra());">
     {% csrf_token %} 
@@ -48,5 +49,5 @@
       
       </script>
     </div>
-</div>
+</div> -->
 {%endblock%}

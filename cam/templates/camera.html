@@ -1,22 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="container jumbotron col-md-7" style="margin-top: 6%; padding-bottom: 2%;">
-    <div class="camera">
-      <video id="video" width="350" height="196" style="background: khaki;"></video>
-      
-      <img id="photo" width="350" height="196" style="float:right; border-color: khaki;" src="../static/image/dd.jpg"/>
-      <canvas id="photo2" width="1280" height="720" style="float:right; border-color: khaki; display: none;"></canvas>
-    </div>
     <center style="margin-top: 5%;">
+      <div class="camera">
+        <video id="video" width="350" height="196" style="background: khaki;"></video>
+        
+        <img id="photo" width="350" height="196" style="border-color: khaki; display: none;" src=""/>
+        <canvas id="photo2" width="1280" height="720" style="float:right; border-color: khaki; display: none;"></canvas>
+      </div>
         <a href="{% url 'cam:index' %}"><button type="button" class="btn btn-light" style="border-color: dodgerblue">Thoát</button></a>
-        <button id="snap" onclick="snap()" type="button" class="btn btn-light" style="border-color: dodgerblue">Chụp ảnh</button> 
+        <button id="snap" onclick="snap()" type="button" class="btn btn-primary" style="border-color: dodgerblue">Chụp ảnh</button> 
         <form action="{% url 'cam:upload_cam' %}" method="POST" enctype="multipart/form-data" id="form1" style="display:none">
           {% csrf_token %} 
           <input type="hidden"  name="image" id="hidden" style="display:none;" value="">
-          <input type="submit" class="btn btn-primary" value="Dự đoán"/>
+          <!-- <input type="submit" class="btn btn-primary" value="Dự đoán"/> -->
        </form>
     </center>
-</div>
+
   <script>
     var canvas = document.getElementById('photo2');
     var context = canvas.getContext('2d');
@@ -38,14 +37,29 @@
 
     // Trigger photo take
     function snap(){
-      // Elements for taking the snapshot
+    // Elements for taking the snapshot
 
-      if (temp == 1){
+      if (temp == 1){     
         context.drawImage(video, 0, 0, 1280, 720);
         document.getElementById('photo').src = canvas.toDataURL();
-        document.getElementById('form1').style.display = 'inline-block';
         document.getElementById('hidden').value = canvas.toDataURL();
+        stopStreamedVideo(video); 
+        document.getElementById('video').style.display = 'none';
+        document.getElementById('photo').style.display = 'inline-block';
+
+        document.getElementById("form1").submit();
       }
+    }
+    // Tắt live
+    function stopStreamedVideo(videoElem) {
+      let stream = videoElem.srcObject;
+      let tracks = stream.getTracks();
+
+      tracks.forEach(function(track) {
+        track.stop();
+      });
+
+      videoElem.srcObject = null;
     }
   </script>
   {%endblock%}

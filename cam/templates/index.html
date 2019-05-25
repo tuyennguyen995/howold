@@ -1,5 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+ .btn-file {
+    position: relative;
+    overflow: hidden;
+    margin-left: 5px;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;   
+    cursor: inherit;
+    display: block;
+}
+</style>
   <!--================Home Banner Area =================-->
   <section class="home_banner_area mb-40">
     <div class="banner_inner d-flex align-items-center">
@@ -9,59 +29,112 @@
             <p class="sub text-uppercase">DETECTION</p>
             <h3><span>Your</span> Age & <br />Your <span>Gender</span></h3>
             <h4>Just a photo and wait and see</h4>
-            <button type="button" class="main_btn mt-40" data-toggle="modal" data-target="#exampleModal">Upload hình ảnh</button>
-            <a class="main_btn mt-40" href="{% url 'cam:camera' %}" style="color: #71cd14; background-color:transparent;">Chụp ảnh</a>
+            <!-- <button type="button" class="main_btn mt-40" data-toggle="modal" data-target="#exampleModal">Upload hình ảnh</button> -->
+            <form action="{% url 'cam:upload' %}" method="POST" enctype = "multipart/form-data" id="form1">
+              {% csrf_token %}
+                <span class="main_btn mt-40 btn-file" style="margin-top: 40px;">Upload hình ảnh <input type="file" onchange="kiemtra()" name="image" id="image"></span>
+                <!-- <a class="main_btn mt-40" href="{% url 'cam:camera' %}" style="color: #71cd14; background-color:transparent; float: left;">Chụp ảnh</a> -->
+                <button type="button" class="main_btn mt-40" data-toggle="modal" data-target="#exampleModal" style="color: #71cd14; background-color:transparent; float: left;" onclick="cam()">Chụp ảnh</button>
+            </form>
           </div>
         </div>
       </div>
     </div>
   </section>
+  <script>
+    function kiemtra(){
+      var fileInput = document.getElementById('image');
+      var filePath = fileInput.value; //lấy giá trị input theo id
+      var allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;//các tập tin cho phép
 
-
-<!-- <div class="container jumbotron col-md-5" style="margin-top: 6%; padding-bottom: 1%; padding-top: 1%    ">
-        <center style="margin-bottom: 15px;">
-            <h3>DỰ ĐOÁN TUỔI - GIỚI TÍNH</h3></center>
-        <center>
-            <img id="photo1" src="../static/image/as1.png" width="500" height="280"/>
-        </center>
-        <center style="margin-top: 20px;">
-          <button type="button" class="btn btn-light" style="border-color: dodgerblue" 
-            data-toggle="modal" data-target="#exampleModal">Upload ảnh</button>
-          <a href="{% url 'cam:camera' %}"><button id="snap" type="button" class="btn btn-primary" style="border-color: dodgerblue">Chụp ảnh</button> </a>
-        </center>
-</div>
-Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 10%;">
-        <div class="modal-dialog" role="document">
-        <form action="{% url 'cam:upload' %}" method="POST" enctype = "multipart/form-data" onsubmit="return(kiemtra());">
+      //Kiểm tra định dạng
+      if(!allowedExtensions.exec(filePath)){
+        alert('Vui lòng chọn file ảnh!');
+        fileInput.value = '';
+        return false;
+      }else{
+        document.getElementById("form1").submit();
+      }
+    }
+  </script>
+ <!-- Model -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="margin-top: 2%; margin-left: auto;  ">
+        <div class="modal-dialog" role="document" > 
+        <form action="{% url 'cam:upload_cam' %}" method="POST" enctype = "multipart/form-data" id="form2" style="width: 525px;">
         {% csrf_token %} 
         <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Chọn ảnh</h5>
-            </div>
             <div class="modal-body">
-            <input type="file" name = "image" id="upload_file"/>
-            <div id="thongbao" ></div>
+                <center>
+                    <div class="camera">
+                      <video id="video" width="490" height="275" style="background: khaki;"></video>
+                      
+                      <img id="photo" width="490" height="275" style="border-color: khaki; display: none;" src=""/>
+                      <canvas id="photo2" width="1280" height="720" style="float:right; border-color: khaki; display: none;"></canvas>
+                    </div>
+                      
+                      <input type="hidden"  name="image" id="hidden" style="display:none;" value="">
+                  </center>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-            <input type="submit" class="btn btn-primary" value="Dự đoán">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="stop()">Đóng</button>
+                <button onclick="snap()" type="button" class="btn btn-primary" >Chụp ảnh</button> 
             </div>
         </div>
         </form>
-        <script>
-            function kiemtra(){
-               var test = document.getElementById('upload_file').value;
-               if (test==""){
-                 document.getElementById('thongbao').innerHTML = 'Hãy chọn file ảnh!';
-                 document.getElementById('thongbao').style.color = 'red';
 
-                 return false;
-               }
-               else return true;
+        <script>
+          var canvas = document.getElementById('photo2');
+          var context = canvas.getContext('2d');
+          var video = document.getElementById('video');
+          var temp = 0;
+
+          function cam(){
+            // Camera setup
+            var constraints = { audio: false, video: { width: 1280, height: 720 } }; 
+
+            navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(mediaStream) {
+              var video = document.querySelector('video');
+              video.srcObject = mediaStream;
+              video.onloadedmetadata = function(e) {
+                video.play();
+                temp = 1;
+              };
+            })
+            .catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
+          }
+
+          // Trigger photo take
+          function snap(){
+          // Elements for taking the snapshot
+            if (temp == 1){     
+              context.drawImage(video, 0, 0, 1280, 720);
+              document.getElementById('photo').src = canvas.toDataURL();
+              document.getElementById('hidden').value = canvas.toDataURL();
+              stopStreamedVideo(video); 
+              document.getElementById('video').style.display = 'none';
+              document.getElementById('photo').style.display = 'inline-block';
+
+              document.getElementById("form2").submit();
             }
-          
-          </script>
-        </div>
+          }
+
+          function stop(){
+            stopStreamedVideo(video); 
+          }
+
+          // Tắt live
+          function stopStreamedVideo(videoElem) {
+            let stream = videoElem.srcObject;
+            let tracks = stream.getTracks();
+
+            tracks.forEach(function(track) {
+              track.stop();
+            });
+
+            videoElem.srcObject = null;
+          }
+        </script>
     </div>
+</div>
 {%endblock%}
